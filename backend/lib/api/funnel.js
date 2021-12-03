@@ -5,6 +5,7 @@ const error = require('../errors');
 const {
   AuthController,
   SecurityController,
+  BalanceController,
 } = require('./controllers');
 
 const InternalError = require('../errors/internalError');
@@ -20,6 +21,7 @@ class Funnel {
 
     this.controllers.set('auth', new AuthController());
     this.controllers.set('security', new SecurityController());
+    this.controllers.set('balance', new BalanceController());
   }
 
   async init (backend) {

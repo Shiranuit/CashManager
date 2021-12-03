@@ -6,8 +6,8 @@ const error = require('../../errors');
 class BalanceController extends BaseController {
   constructor () {
     super([
-      { verb: 'get', path: '/', action: 'getBalance' },
-      { verb: 'post', path: '/', action: 'updateBalance' },
+      { verb: 'get', path: '/:userId', action: 'getBalance' },
+      { verb: 'post', path: '/:userId', action: 'updateBalance' },
 
       { verb: 'get', path: '/_me', action: 'getMyBalance'},
     ]);
@@ -33,13 +33,14 @@ class BalanceController extends BaseController {
       error.throwError('security:user:with_id_not_found', userId);
     }
 
-    const balance = await this.backend.ask('core:balance:get', userId);
+    const bankAccount = await this.backend.ask('core:bankAccount:get', userId);
 
-    if (balance === null) {
-      
+    // Should never happens but just for safety
+    if (bankAccount === null) {
+      error.throwError('api:bankAccount:not_found');
     }
 
-    return balance.money;
+    return bankAccount.balance;
   }
 
   /**
@@ -47,7 +48,9 @@ class BalanceController extends BaseController {
    * @param {Request} request
    */
   async getBalance (req) {
+    const userId = req.getInteger('userId');
 
+    return await this._getBalance(userId);
   }
 
   /**
@@ -58,6 +61,8 @@ class BalanceController extends BaseController {
     if (req.isAnonymous()) {
       error.throwError('security:user:not_authenticated');
     }
+
+    return await this._getBalance(req.getUser().id);
   }
 
   /**
@@ -65,7 +70,22 @@ class BalanceController extends BaseController {
    * @param {Request} req
    */
   async updateBalance (req) {
+    const userId = req.getInteger('userId');
+    const money = req.getBodyInteger('money');
 
+    const user = await this.backend.ask('core:security:user:get', userId);
+
+    if (!user) {
+      error.throwError('security:user:with_id_not_found', userId);
+    }
+
+    const bankAccount = await this.backend.ask('core:bankAccount:setBalance', userId, money);
+
+    if (bankAccount === null) {
+      error.throwError('api:bankAccount:not_found');
+    }
+
+    return bankAccount.balance;
   }
 }
 

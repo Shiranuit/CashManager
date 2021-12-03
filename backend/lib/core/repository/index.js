@@ -1,8 +1,11 @@
 'use strict';
 
+const BankAccountRepository = require("./bankAccountRepository");
+
 class RepositoryModule {
   constructor () {
     this.backend = null;
+    this.bankaccount = new BankAccountRepository();
   }
 
   /**
@@ -11,6 +14,7 @@ class RepositoryModule {
    */
   async init (backend) {
     this.backend = backend;
+    await this.bankaccount.init(backend);
   }
 }
 
