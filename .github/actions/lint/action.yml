@@ -1,0 +1,11 @@
+name: Lint
+description: Lint
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        cd backend;
+        npm install;
+        npm run test:lint;
+      shell: bash

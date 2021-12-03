@@ -1,0 +1,14 @@
+name: Unit Tests
+description: Run Node.js unit tests
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        cd backend;
+        npm install;
+      shell: bash
+    - run: |
+        cd backend;
+        npm run test:unit;
+      shell: bash

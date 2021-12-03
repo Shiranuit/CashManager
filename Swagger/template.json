@@ -1,0 +1,20 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "TimeManager",
+    "description": "Welcome to TimeManager's API documentation",
+    "termsOfService": "http://example.com/terms/",
+    "contact": {
+      "email": "the4musketeers@epitech.eu"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.0"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ]
+}
