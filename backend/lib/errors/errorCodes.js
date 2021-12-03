@@ -4,7 +4,6 @@ const InternalError = require('./internalError');
 const BadRequestError = require('./badRequestError');
 const ServiceUnavailableError = require('./serviceUnavailableError');
 const SecurityError = require('./securityError');
-const ApiError = require('./apiError');
 
 module.exports = {
   'request:origin:unauthorized': {
