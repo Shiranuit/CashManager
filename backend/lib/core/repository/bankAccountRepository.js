@@ -1,5 +1,8 @@
 'use strict';
 
+const uuid = require('uuid').v4;
+const crypto = require('crypto');
+
 class BankAccountRepository {
   constructor () {
     this.backend = null;
@@ -19,23 +22,24 @@ class BankAccountRepository {
     backend.onAsk('core:bankAccount:setBalance', this.setAccountBalance.bind(this));
     backend.onAsk('core:bankAccount:create', this.createAccount.bind(this));
     backend.onAsk('core:bankAccount:delete', this.deleteAccount.bind(this));
+    backend.onAsk('core:bankAccount:verify', this.verifyAccount.bind(this));
   }
 
   /**
-   * Get the bankAccount from the DB given a user id
+   * Get the bankAccount from the DB given a account id
    *
-   * @param {integer} userId
+   * @param {string} accountId
    * @returns {Promise<{
    *  id: integer,
    *  user_id: integer,
    *  balance: integer,
    * }>}
    */
-  async getAccount (userId) {
+  async getAccount (accountId) {
     const result = await this.backend.ask(
       'postgres:query',
-      'SELECT id, user_id, balance FROM bank_accounts WHERE user_id = $1;',
-      [userId]
+      'SELECT id, vcc, balance FROM bank_accounts WHERE id = $1;',
+      [accountId]
     );
 
     if (result.rows.length === 0) {
@@ -46,9 +50,9 @@ class BankAccountRepository {
   }
 
   /**
-   * Create a bankAccount inside the DB given a user id
+   * Create a bankAccount inside the DB given a account id
    *
-   * @param {integer} userId
+   * @param {string} accountId
    * @param {integer} balance (optional) [default: 0]
    * @returns {Promise<{
    *  id: integer,
@@ -56,11 +60,12 @@ class BankAccountRepository {
    *  balance: integer,
    * }>}
    */
-  async createAccount (userId, balance = 0) {
+  async createAccount (balance = 0) {
+    const vcc = crypto.randomInt(10000).toString().padStart(4, '0');
     const result = await this.backend.ask(
       'postgres:query',
-      'INSERT INTO bank_accounts (user_id, balance) VALUES ($1, $2) RETURNING id, user_id, balance;',
-      [userId, balance]
+      'INSERT INTO bank_accounts (id, vcc, balance) VALUES ($1, $2, $3) RETURNING id, vcc, balance;',
+      [uuid(), vcc, balance]
     );
 
     if (result.rows.length === 0) {
@@ -71,9 +76,9 @@ class BankAccountRepository {
   }
 
   /**
-   * Update the account balance from the DB given a user id
+   * Update the account balance from the DB given a account id
    *
-   * @param {integer} userId
+   * @param {string} accountId
    * @param {integer} balance (optional) [default: 0]
    * @param {{status: boolean, start: Date}} data
    * @returns {Promise<{
@@ -82,11 +87,11 @@ class BankAccountRepository {
    *  balance: integer,
    * }>}
    */
-  async setAccountBalance (userId, balance = 0) {
+  async setAccountBalance (accountId, balance = 0) {
     const result = await this.backend.ask(
       'postgres:query',
-      'UPDATE clocks SET balance = $2 WHERE user_id = $1 RETURNING id, user_id, balance;',
-      [userId, balance]
+      'UPDATE clocks SET balance = $2 WHERE id = $1 RETURNING id, vcc, balance;',
+      [accountId, balance]
     );
 
     if (result.rows.length === 0) {
@@ -97,17 +102,35 @@ class BankAccountRepository {
   }
 
   /**
-   * Delete a bankAccount from the DB given a user id
+   * Delete a bankAccount from the DB given a account id
    *
-   * @param {integer} userId
-   * @returns {void}
+   * @param {string} accountId
    */
-  async deleteAccount (userId) {
+  async deleteAccount (accountId) {
     await this.backend.ask(
       'postgres:query',
-      'DELETE FROM bank_accounts WHERE user_id = $1;',
-      [userId]
+      'DELETE FROM bank_accounts WHERE id = $1;',
+      [accountId]
     );
+  }
+
+  /**
+   * Verify bankAccount informations
+   * 
+   * @param {string} accountId 
+   * @param {string} vcc 
+   */
+  async verifyAccount (accountId, vcc) {
+    const account = await this.backend.ask(
+      'postgres:query',
+      'SELECT balance FROM bank_accounts WHERE id = $1 AND vcc = $2;',
+      [accountId, vcc]
+    );
+
+    if (account.rows.length === 0) {
+      return false;
+    }
+    return true;
   }
 }
 

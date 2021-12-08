@@ -5,7 +5,8 @@ const error = require('../errors');
 const {
   AuthController,
   SecurityController,
-  BalanceController,
+  BankAccountController,
+  ProductController,
 } = require('./controllers');
 
 const InternalError = require('../errors/internalError');
@@ -21,7 +22,8 @@ class Funnel {
 
     this.controllers.set('auth', new AuthController());
     this.controllers.set('security', new SecurityController());
-    this.controllers.set('balance', new BalanceController());
+    this.controllers.set('bankaccount', new BankAccountController());
+    this.controllers.set('product', new ProductController());
   }
 
   async init (backend) {
@@ -38,6 +40,7 @@ class Funnel {
      * Create every routes for each controller
      */
     for (const [controllerName, controller] of this.controllers) {
+      this.backend.logger.debug(`Initializing controller "${controllerName}":`);
       for (const route of controller.__actions) {
         // If a / is missing at the start of the path we add it
         const path = route.path[0] === '/' ? `${controllerName}${route.path}` : `${controllerName}/${route.path}`;
@@ -47,6 +50,7 @@ class Funnel {
         }
         // Add the route to the router
         this.backend.router.attach(route.verb, `/api/${path}`, controller[route.action].bind(controller), controllerName, route.action);
+        this.backend.logger.debug(`  ${route.verb.toUpperCase()} /api/${path} -> ${controllerName}:${route.action}`);
       }
     }
 

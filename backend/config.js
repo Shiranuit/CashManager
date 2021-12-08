@@ -4,7 +4,7 @@ module.exports = {
   },
   http: {
     host: 'localhost',
-    port: 4000,
+    port: 8080,
     cors: {
       'Access-Control-Allow-Origin': [
         /^(http(s)?:\/\/)?tungsten\.ovh/,
@@ -59,22 +59,25 @@ module.exports = {
         login: true,
         logout: true,
         checkToken: true,
-        register: true,
       },
+      product: {
+        getProductByCode: true,
+      }
     },
     user: {
       auth: {
         login: true,
         logout: true,
         checkToken: true,
-
-        getMyUser: true,
-        updateMyUser: true,
-        updateMyPassword: true,
-        deleteMyUser: true,
       },
+      bankaccount: {
+        getAccountInfo: true,
+      },
+      product: {
+        getProductByCode: true,
+      }
     },
-    'super-manager': {
+    'admin': {
       '*': {
         '*': true,
       }

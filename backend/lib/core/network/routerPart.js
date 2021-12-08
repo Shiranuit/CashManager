@@ -99,7 +99,7 @@ class RouterPart {
 
     for (let i = 0; i < this.template.length; i++) {
       if (this.template[i].placeholder) {
-        params[this.template[i].name] = _path[i];
+        params[this.template[i].name] = decodeURIComponent(_path[i]);
       }
     }
 

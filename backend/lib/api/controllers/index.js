@@ -6,5 +6,6 @@
 module.exports = {
   AuthController: require('./AuthController'),
   SecurityController: require('./SecurityController'),
-  BalanceController: require('./BalanceController'),
+  BankAccountController: require('./BankAccountController'),
+  ProductController: require('./ProductController'),
 };
