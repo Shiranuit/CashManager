@@ -23,6 +23,7 @@ class BarcodeAreaPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.saveLayer(Rect.fromLTRB(0, 0, size.width, size.height), Paint());
     Paint darkenPaint = Paint()
       ..color = Colors.black.withOpacity(outsideOpacity);
     canvas.drawRect(Rect.fromLTRB(0, 0, size.width, size.height), darkenPaint);
@@ -56,6 +57,7 @@ class BarcodeAreaPainter extends CustomPainter {
             width: size.width * widthSizePercent + 2,
             height: size.height * heightSizePercent * heightLengthPercent),
         Paint()..blendMode = BlendMode.clear);
+    canvas.restore();
   }
 
   @override

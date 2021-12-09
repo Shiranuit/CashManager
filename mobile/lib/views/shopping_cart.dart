@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cash_manager/views/product_details_view.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:cash_manager/components/animated_expander.dart';
@@ -24,6 +25,8 @@ class _ShoppingCartState extends State<ShoppingCart>
   List<Product> products = [];
   final animatedListKey = GlobalKey<AnimatedListState>();
   late StreamController<bool> _expandController;
+  double totalPrice = 0;
+  int totalQuantity = 0;
 
   @override
   void initState() {
@@ -37,6 +40,19 @@ class _ShoppingCartState extends State<ShoppingCart>
     super.dispose();
   }
 
+  void updatePaiementInfo() {
+    double price = 0;
+    int quantity = 0;
+    for (var product in products) {
+      price += product.price * product.quantity;
+      quantity = product.quantity;
+    }
+    setState(() {
+      totalPrice = price;
+      totalQuantity = quantity;
+    });
+  }
+
   Future<Product?> getProduct(String code) async {
     var prefs = await SharedPreferences.getInstance();
     String? ip = prefs.getString('ip');
@@ -48,7 +64,9 @@ class _ShoppingCartState extends State<ShoppingCart>
         if (response.statusCode == 200) {
           var utf8Body = utf8.decode(response.bodyBytes);
           var json = jsonDecode(utf8Body);
-          return Product.fromJson(json["result"]);
+          return Product.fromJson(
+            json["result"],
+          )..addListener(updatePaiementInfo);
         }
       } catch (_) {
         return null;
@@ -72,9 +90,12 @@ class _ShoppingCartState extends State<ShoppingCart>
             return Container();
           });
 
-          animatedListKey.currentState
-              ?.insertItem(0, duration: const Duration(milliseconds: 1000));
+          animatedListKey.currentState?.insertItem(
+            0,
+            duration: const Duration(milliseconds: 1000),
+          );
         });
+        updatePaiementInfo();
         return !invalid;
       }
     }
@@ -84,23 +105,30 @@ class _ShoppingCartState extends State<ShoppingCart>
       setState(() {
         products = products
           ..insert(
-              0,
-              Product(
-                name: 'Unkown product <$code>',
-                code: code,
-                invalid: true,
-              ));
-        animatedListKey.currentState
-            ?.insertItem(0, duration: const Duration(milliseconds: 1000));
+            0,
+            Product(
+              name: 'Unkown product <$code>',
+              code: code,
+              invalid: true,
+            )..addListener(updatePaiementInfo),
+          );
+        animatedListKey.currentState?.insertItem(
+          0,
+          duration: const Duration(milliseconds: 1000),
+        );
       });
+      updatePaiementInfo();
       return false;
     }
 
     setState(() {
       products = products..insert(0, product);
-      animatedListKey.currentState
-          ?.insertItem(0, duration: const Duration(milliseconds: 1000));
+      animatedListKey.currentState?.insertItem(
+        0,
+        duration: const Duration(milliseconds: 1000),
+      );
     });
+    updatePaiementInfo();
     return true;
   }
 
@@ -114,6 +142,28 @@ class _ShoppingCartState extends State<ShoppingCart>
       }
     }
     return false;
+  }
+
+  void onDeleteProduct(Product product) {
+    setState(() {
+      int index = products.indexOf(product);
+      products = products..removeAt(index);
+      animatedListKey.currentState?.removeItem(
+        index,
+        (context, animation) {
+          return Container();
+        },
+      );
+    });
+  }
+
+  void showProductDetails(Product product) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetailsView(product: product),
+      ),
+    );
   }
 
   @override
@@ -165,7 +215,11 @@ class _ShoppingCartState extends State<ShoppingCart>
                 var anim = animation.drive(Tween(begin: 1.0, end: 0.0));
                 return AnimatedBuilder(
                   animation: anim,
-                  child: ProductTile(product: products[index]),
+                  child: ProductTile(
+                    product: products[index],
+                    onDelete: onDeleteProduct,
+                    onTap: showProductDetails,
+                  ),
                   builder: (context, child) {
                     return Container(
                       child: child,
@@ -179,16 +233,71 @@ class _ShoppingCartState extends State<ShoppingCart>
         ],
       )),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ElevatedButton(
-          onPressed: () {},
-          child: Text('Pay'),
-        ),
-      ),
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 8,
+            child: Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(16),
+                  ),
+                ),
+                height: 80,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            'Products',
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                          Text(
+                            totalQuantity.toString(),
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Total',
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                          Text(
+                            '${totalPrice.toStringAsFixed(2)}€',
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                        ],
+                      ),
+                      Tooltip(
+                        message: 'Pay',
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          child: Row(
+                            children: const [
+                              Icon(Icons.payment),
+                              Text('Pay'),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )),
+          )),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
           onPressed: () {
             _expandController.add(!showQRScanner);
           },
+          backgroundColor: Theme.of(context).buttonTheme.colorScheme?.primary,
           tooltip: 'QR Code',
           child: showQRScanner
               ? const Icon(Icons.close)
