@@ -16,6 +16,8 @@ class MyApp extends StatelessWidget {
       title: 'Cash Manager',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        colorScheme: const ColorScheme.dark(),
+        // scaffoldBackgroundColor: Colors.black,
       ),
       home: const MyHomePage(title: 'Cash Manager'),
     );
@@ -75,9 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('rememberIP', rememberIP);
     prefs.setBool('rememberEmailPassword', rememberEmailPassword);
-    if (rememberIP) {
-      prefs.setString('ip', _ipController.text);
-    }
+    prefs.setString('ip', _ipController.text);
     if (rememberEmailPassword) {
       prefs.setString('email', _emailController.text);
       prefs.setString('password', _passwordController.text);
@@ -133,9 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   autofillHints: const [AutofillHints.url],
                                   controller: _ipController,
                                   onChanged: (value) {
-                                    if (rememberIP) {
-                                      saveSettings();
-                                    }
+                                    saveSettings();
                                   },
                                 ),
                                 TextFormField(
