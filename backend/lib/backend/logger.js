@@ -6,6 +6,22 @@ class Logger {
     this.config = backend.config.logger;
   }
 
+  _stringify(message) {
+
+    if (message instanceof Error) {
+      return this._stringify({
+        message: message.message,
+        stack: message.stack
+      });
+    }
+
+    if (typeof message === 'object') {
+      return JSON.stringify(message, null, 4);
+    }
+
+    return message.toString();
+  }
+
   /**
    * Logs a debug message to the console.
    * @param {string} message
@@ -17,7 +33,7 @@ class Logger {
     }
 
     const date = new Date().toLocaleString();
-    const lines = message.split('\n');
+    const lines = this._stringify(message).split('\n');
     for (const line of lines) {
       console.debug('\x1b[32m%s\x1b[0m', `[DEBUG][${date}] ${line}`);
     }
@@ -30,7 +46,7 @@ class Logger {
    */
   info (message) {
     const date = new Date().toLocaleString();
-    const lines = message.split('\n');
+    const lines = this._stringify(message).split('\n');
     for (const line of lines) {
       console.info('\x1b[36m%s\x1b[0m', `[INFO][${date}] ${line}`);
     }
@@ -43,7 +59,7 @@ class Logger {
    */
   warn (message) {
     const date = new Date().toLocaleString();
-    const lines = message.split('\n');
+    const lines = this._stringify(message).split('\n');
     for (const line of lines) {
       console.warn('\x1b[33m%s\x1b[0m', `[WARN][${date}] ${line}`);
     }
@@ -56,7 +72,7 @@ class Logger {
    */
   error (message) {
     const date = new Date().toLocaleString();
-    const lines = message.split('\n');
+    const lines = this._stringify(message).split('\n');
     for (const line of lines) {
       console.error('\x1b[31m%s\x1b[0m', `[ERROR][${date}] ${line}`);
     }

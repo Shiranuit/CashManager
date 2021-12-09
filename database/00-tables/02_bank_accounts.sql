@@ -1,9 +1,5 @@
 CREATE TABLE IF NOT EXISTS public.bank_accounts (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL,
-  balance INTEGER NOT NULL,
-
-  CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users (id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
+  id TEXT PRIMARY KEY,
+  vcc TEXT NOT NULL,
+  balance INTEGER NOT NULL DEFAULT 0
 );
