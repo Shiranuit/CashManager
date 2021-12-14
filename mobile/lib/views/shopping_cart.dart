@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cash_manager/views/payment_view.dart';
 import 'package:cash_manager/views/product_details_view.dart';
 import 'package:http/http.dart' as http;
 
@@ -155,6 +156,7 @@ class _ShoppingCartState extends State<ShoppingCart>
         },
       );
     });
+    updatePaiementInfo();
   }
 
   void showProductDetails(Product product) {
@@ -175,6 +177,7 @@ class _ShoppingCartState extends State<ShoppingCart>
       body: Center(
           child: Column(
         children: [
+          // Barcode Scanner
           AnimatedExpander(
               onCollapsed: () {
                 setState(() {
@@ -207,6 +210,7 @@ class _ShoppingCartState extends State<ShoppingCart>
               defaultExpanded: false,
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height / 2.5),
+          // Shopping Cart
           Expanded(
             child: AnimatedList(
               key: animatedListKey,
@@ -232,6 +236,7 @@ class _ShoppingCartState extends State<ShoppingCart>
           ),
         ],
       )),
+      // Bottom ar with total price and product count
       bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Card(
@@ -279,7 +284,16 @@ class _ShoppingCartState extends State<ShoppingCart>
                       Tooltip(
                         message: 'Pay',
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PaymentView(
+                                  products: products,
+                                ),
+                              ),
+                            );
+                          },
                           child: Row(
                             children: const [
                               Icon(Icons.payment),
