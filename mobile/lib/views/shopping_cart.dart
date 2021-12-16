@@ -157,6 +157,31 @@ class _ShoppingCartState extends State<ShoppingCart>
       );
     });
     updatePaiementInfo();
+
+    SnackBar undoBar = SnackBar(
+      backgroundColor: Colors.grey[700],
+      content: Text(
+        'Deleted "${product.name}"',
+        style: const TextStyle(color: Colors.white),
+      ),
+      action: SnackBarAction(
+        label: 'Undo',
+        textColor: Colors.red,
+        onPressed: () {
+          setState(() {
+            products = products..insert(0, product);
+
+            animatedListKey.currentState?.insertItem(
+              0,
+              duration: const Duration(milliseconds: 1000),
+            );
+          });
+          updatePaiementInfo();
+        },
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(undoBar);
   }
 
   void showProductDetails(Product product) {
@@ -179,37 +204,38 @@ class _ShoppingCartState extends State<ShoppingCart>
         children: [
           // Barcode Scanner
           AnimatedExpander(
-              onCollapsed: () {
-                setState(() {
-                  showQRScanner = false;
-                });
-              },
-              onExpanded: () {
-                setState(() {
-                  showQRScanner = true;
-                });
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: BarCodeScanner(
-                    onScan: onScan,
-                    scanDelay: const Duration(milliseconds: 1000),
-                  ),
+            onCollapsed: () {
+              setState(() {
+                showQRScanner = false;
+              });
+            },
+            onExpanded: () {
+              setState(() {
+                showQRScanner = true;
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BarCodeScanner(
+                  onScan: onScan,
+                  scanDelay: const Duration(milliseconds: 1000),
                 ),
               ),
-              expansionChild: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                color: Colors.black,
+            ),
+            expansionChild: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              duration: const Duration(milliseconds: 250),
-              listenable: _expandController.stream,
-              defaultExpanded: false,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 2.5),
+              color: Colors.black,
+            ),
+            duration: const Duration(milliseconds: 250),
+            listenable: _expandController.stream,
+            defaultExpanded: false,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 2.5,
+          ),
           // Shopping Cart
           Expanded(
             child: AnimatedList(
