@@ -189,6 +189,16 @@ class _ShoppingCartState extends State<ShoppingCart>
     ScaffoldMessenger.of(context).showSnackBar(undoBar);
   }
 
+  void _clearAllItems() {
+    for (var i = 0; i <= products.length - 1; i++) {
+      animatedListKey.currentState?.removeItem(0,
+          (BuildContext context, Animation<double> animation) {
+        return Container();
+      });
+    }
+    products.clear();
+  }
+
   void showProductDetails(Product product) {
     // Navigator.push(
     //   context,
@@ -315,8 +325,8 @@ class _ShoppingCartState extends State<ShoppingCart>
                       Tooltip(
                         message: 'Pay',
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            bool? success = await Navigator.push<bool>(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => PaymentView(
@@ -324,6 +334,13 @@ class _ShoppingCartState extends State<ShoppingCart>
                                 ),
                               ),
                             );
+                            if (success != null && success == true) {
+                              setState(() {
+                                totalPrice = 0;
+                                totalQuantity = 0;
+                                _clearAllItems();
+                              });
+                            }
                           },
                           child: Row(
                             children: const [

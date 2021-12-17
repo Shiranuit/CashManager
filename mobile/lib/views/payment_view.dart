@@ -26,6 +26,7 @@ class PaymentView extends StatefulWidget {
 
 class _PaymentViewState extends State<PaymentView> {
   late ValueNotifier<PaiementMethod> _paiementMethod;
+  late ValueNotifier<bool> _shoppingCartPaid;
   bool showQRScanner = false;
   bool showNFCScanner = false;
   late StreamController<bool> _expandQRScannerController;
@@ -37,6 +38,7 @@ class _PaymentViewState extends State<PaymentView> {
     _expandQRScannerController = StreamController();
     _expandNFCScannerController = StreamController();
     _paiementMethod = ValueNotifier(PaiementMethod.none);
+    _shoppingCartPaid = ValueNotifier(false);
   }
 
   @override
@@ -44,7 +46,145 @@ class _PaymentViewState extends State<PaymentView> {
     _expandQRScannerController.close();
     _expandNFCScannerController.close();
     _paiementMethod.dispose();
+    _shoppingCartPaid.dispose();
     super.dispose();
+  }
+
+  Widget buildPaymentMethodSelector() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Expanded(
+          child: Center(
+            child: Text(
+              'How would you like to pay?',
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 50,
+                child: ValueListenableBuilder(
+                  valueListenable: _paiementMethod,
+                  builder: (BuildContext context, PaiementMethod value,
+                      Widget? child) {
+                    return ElevatedButton(
+                      onPressed: () {
+                        if (_paiementMethod.value == PaiementMethod.nfc) {
+                          _paiementMethod.value = PaiementMethod.none;
+                          _expandNFCScannerController.add(!showNFCScanner);
+                          return;
+                        }
+                        _paiementMethod.value = PaiementMethod.nfc;
+                        setState(() {
+                          showQRScanner = false;
+                        });
+                        _expandQRScannerController.add(false);
+                        _expandNFCScannerController.add(!showNFCScanner);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.contactless_outlined,
+                            color: value == PaiementMethod.nfc
+                                ? Colors.black
+                                : Colors.white,
+                            size: 36,
+                          ),
+                          Text(
+                            'NFC',
+                            style: TextStyle(
+                              color: value == PaiementMethod.nfc
+                                  ? Colors.black
+                                  : Colors.white,
+                              fontSize: 24,
+                            ),
+                          ),
+                        ],
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(16),
+                          ),
+                        ),
+                        primary: value == PaiementMethod.nfc
+                            ? Theme.of(context).buttonTheme.colorScheme?.primary
+                            : Colors.black.withOpacity(0.2),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              child: SizedBox(
+                height: 50,
+                child: ValueListenableBuilder(
+                  valueListenable: _paiementMethod,
+                  builder: (BuildContext context, PaiementMethod value,
+                      Widget? child) {
+                    return ElevatedButton(
+                      onPressed: () {
+                        if (_paiementMethod.value == PaiementMethod.scan) {
+                          _paiementMethod.value = PaiementMethod.none;
+                          _expandQRScannerController.add(!showQRScanner);
+                          return;
+                        }
+                        _paiementMethod.value = PaiementMethod.scan;
+                        setState(() {
+                          showNFCScanner = false;
+                        });
+                        _expandNFCScannerController.add(false);
+                        _expandQRScannerController.add(!showQRScanner);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.qr_code,
+                            color: value == PaiementMethod.scan
+                                ? Colors.black
+                                : Colors.white,
+                            size: 36,
+                          ),
+                          Text(
+                            'Scan',
+                            style: TextStyle(
+                              color: value == PaiementMethod.scan
+                                  ? Colors.black
+                                  : Colors.white,
+                              fontSize: 24,
+                            ),
+                          ),
+                        ],
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(16),
+                          ),
+                        ),
+                        primary: value == PaiementMethod.scan
+                            ? Theme.of(context).buttonTheme.colorScheme?.primary
+                            : Colors.black.withOpacity(0.2),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        )
+      ],
+    );
   }
 
   Widget buildBottomBar() {
@@ -57,147 +197,28 @@ class _PaymentViewState extends State<PaymentView> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Expanded(
-                child: Center(
-                  child: Text(
-                    'How would you like to pay?',
-                    style: TextStyle(fontSize: 18),
+          child: ValueListenableBuilder(
+            valueListenable: _shoppingCartPaid,
+            builder: (context, bool paid, Widget? child) {
+              if (!paid) {
+                return buildPaymentMethodSelector();
+              }
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green,
+                    size: 36,
                   ),
-                ),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 50,
-                      child: ValueListenableBuilder(
-                        valueListenable: _paiementMethod,
-                        builder: (BuildContext context, PaiementMethod value,
-                            Widget? child) {
-                          return ElevatedButton(
-                            onPressed: () {
-                              if (_paiementMethod.value == PaiementMethod.nfc) {
-                                _paiementMethod.value = PaiementMethod.none;
-                                _expandNFCScannerController
-                                    .add(!showNFCScanner);
-                                return;
-                              }
-                              _paiementMethod.value = PaiementMethod.nfc;
-                              setState(() {
-                                showQRScanner = false;
-                              });
-                              _expandQRScannerController.add(false);
-                              _expandNFCScannerController.add(!showNFCScanner);
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.contactless_outlined,
-                                  color: value == PaiementMethod.nfc
-                                      ? Colors.black
-                                      : Colors.white,
-                                  size: 36,
-                                ),
-                                Text(
-                                  'NFC',
-                                  style: TextStyle(
-                                    color: value == PaiementMethod.nfc
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontSize: 24,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(16),
-                                ),
-                              ),
-                              primary: value == PaiementMethod.nfc
-                                  ? Theme.of(context)
-                                      .buttonTheme
-                                      .colorScheme
-                                      ?.primary
-                                  : Colors.black.withOpacity(0.2),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: SizedBox(
-                      height: 50,
-                      child: ValueListenableBuilder(
-                        valueListenable: _paiementMethod,
-                        builder: (BuildContext context, PaiementMethod value,
-                            Widget? child) {
-                          return ElevatedButton(
-                            onPressed: () {
-                              if (_paiementMethod.value ==
-                                  PaiementMethod.scan) {
-                                _paiementMethod.value = PaiementMethod.none;
-                                _expandQRScannerController.add(!showQRScanner);
-                                return;
-                              }
-                              _paiementMethod.value = PaiementMethod.scan;
-                              setState(() {
-                                showNFCScanner = false;
-                              });
-                              _expandNFCScannerController.add(false);
-                              _expandQRScannerController.add(!showQRScanner);
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.qr_code,
-                                  color: value == PaiementMethod.scan
-                                      ? Colors.black
-                                      : Colors.white,
-                                  size: 36,
-                                ),
-                                Text(
-                                  'Scan',
-                                  style: TextStyle(
-                                    color: value == PaiementMethod.scan
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontSize: 24,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  bottomRight: Radius.circular(16),
-                                ),
-                              ),
-                              primary: value == PaiementMethod.scan
-                                  ? Theme.of(context)
-                                      .buttonTheme
-                                      .colorScheme
-                                      ?.primary
-                                  : Colors.black.withOpacity(0.2),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                  Text(
+                    'Already Paid',
+                    style: TextStyle(fontSize: 24, color: Colors.green),
                   ),
                 ],
-              )
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -250,6 +271,8 @@ class _PaymentViewState extends State<PaymentView> {
             showErrorMessage(json['error']['message']);
             return false;
           }
+
+          _shoppingCartPaid.value = true;
           return true;
         }
       } catch (err) {
@@ -260,6 +283,11 @@ class _PaymentViewState extends State<PaymentView> {
     }
 
     return false;
+  }
+
+  afterPaymentSucceeded() {
+    _expandNFCScannerController.add(false);
+    _expandQRScannerController.add(false);
   }
 
   Widget buildBarcodeScanner() {
@@ -342,6 +370,7 @@ class _PaymentViewState extends State<PaymentView> {
 
               return await PayProducts(data[0], data[1]);
             },
+            afterSuccessAnimation: afterPaymentSucceeded,
           ),
         ),
       ),
@@ -366,15 +395,21 @@ class _PaymentViewState extends State<PaymentView> {
       appBar: AppBar(
         title: const Text('Payment'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              buildNFCScanner(),
-              buildBarcodeScanner(),
-              OrderReceipt(products: widget.products),
-            ],
+      body: WillPopScope(
+        onWillPop: () async {
+          Navigator.pop<bool>(context, _shoppingCartPaid.value);
+          return false;
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                buildNFCScanner(),
+                buildBarcodeScanner(),
+                OrderReceipt(products: widget.products),
+              ],
+            ),
           ),
         ),
       ),

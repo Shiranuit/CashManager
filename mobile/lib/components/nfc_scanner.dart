@@ -19,10 +19,18 @@ class NFCScanner extends StatefulWidget {
 
   /// Called when an error occurs during scan.
   final void Function(Object)? onError;
+
+  /// Called after the the Success Animation
+  final void Function()? afterSuccessAnimation;
+
+  /// Called after the failure animation
+  final void Function()? afterFailureAnimation;
   const NFCScanner({
     Key? key,
     this.onScan,
     this.onError,
+    this.afterSuccessAnimation,
+    this.afterFailureAnimation,
   }) : super(key: key);
 
   @override
@@ -86,8 +94,14 @@ class NFCScannerState extends State<NFCScanner> with TickerProviderStateMixin {
           (value) async {
             await Future.delayed(const Duration(seconds: 1));
             _controller.reverse().whenComplete(
-                  () => _state.value = NfcState.waiting,
-                );
+              () {
+                _state.value = NfcState.waiting;
+                if (success) {
+                  return widget.afterSuccessAnimation?.call();
+                }
+                widget.afterFailureAnimation?.call();
+              },
+            );
           },
         );
       } catch (e) {
