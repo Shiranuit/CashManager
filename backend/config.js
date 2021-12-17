@@ -62,6 +62,9 @@ module.exports = {
       },
       product: {
         getProductByCode: true,
+      },
+      download: {
+        downloadAPK: true,
       }
     },
     user: {
