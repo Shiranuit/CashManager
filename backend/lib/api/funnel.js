@@ -7,6 +7,7 @@ const {
   SecurityController,
   BankAccountController,
   ProductController,
+  DownloadController,
 } = require('./controllers');
 
 const InternalError = require('../errors/internalError');
@@ -24,6 +25,7 @@ class Funnel {
     this.controllers.set('security', new SecurityController());
     this.controllers.set('bankaccount', new BankAccountController());
     this.controllers.set('product', new ProductController());
+    this.controllers.set('download', new DownloadController());
   }
 
   async init (backend) {
@@ -43,14 +45,16 @@ class Funnel {
       this.backend.logger.debug(`Initializing controller "${controllerName}":`);
       for (const route of controller.__actions) {
         // If a / is missing at the start of the path we add it
-        const path = route.path[0] === '/' ? `${controllerName}${route.path}` : `${controllerName}/${route.path}`;
+        const pathPrefix = route.rootPath ? '' : controllerName;
+        const path = route.path[0] === '/' ? `${pathPrefix}${route.path}` : `${pathPrefix}/${route.path}`;
 
         if (!controller[route.action] || typeof controller[route.action] !== 'function') {
           throw new InternalError(`Cannot attach path ${route.verb.toUpperCase()} /api/${path}: no action ${route.action} for controller ${controllerName}`);
         }
         // Add the route to the router
-        this.backend.router.attach(route.verb, `/api/${path}`, controller[route.action].bind(controller), controllerName, route.action);
-        this.backend.logger.debug(`  ${route.verb.toUpperCase()} /api/${path} -> ${controllerName}:${route.action}`);
+        const prefix = route.rootPath ? '' : '/api/';
+        this.backend.router.attach(route.verb, `${prefix}${path}`, controller[route.action].bind(controller), controllerName, route.action);
+        this.backend.logger.debug(`  ${route.verb.toUpperCase()} ${prefix}${path} -> ${controllerName}:${route.action}`);
       }
     }
 
