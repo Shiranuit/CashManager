@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:cash_manager/views/payment_view.dart';
 import 'package:cash_manager/views/product_details_view.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:cash_manager/components/animated_expander.dart';
 import 'package:cash_manager/components/product_tile.dart';
@@ -57,11 +57,16 @@ class _ShoppingCartState extends State<ShoppingCart>
   Future<Product?> getProduct(String code) async {
     var prefs = await SharedPreferences.getInstance();
     String? ip = prefs.getString('ip');
+    String? jwt = prefs.getString('jwt');
 
-    if (ip != null) {
+    if (ip != null && jwt != null) {
       try {
-        var response =
-            await http.get(Uri.parse('http://$ip/api/product/$code'));
+        var response = await http.get(
+          Uri.parse('http://$ip/api/product/$code'),
+          headers: {
+            'Authorization': jwt,
+          },
+        );
         if (response.statusCode == 200) {
           var utf8Body = utf8.decode(response.bodyBytes);
           var json = jsonDecode(utf8Body);
@@ -185,12 +190,12 @@ class _ShoppingCartState extends State<ShoppingCart>
   }
 
   void showProductDetails(Product product) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProductDetailsView(product: product),
-      ),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => ProductDetailsView(product: product),
+    //   ),
+    // );
   }
 
   @override

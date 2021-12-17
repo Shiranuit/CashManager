@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:cash_manager/components/animated_expander.dart';
 import 'package:cash_manager/components/barcode_scanner.dart';
@@ -8,6 +10,8 @@ import 'package:cash_manager/components/order_receipt.dart';
 import 'package:cash_manager/models/product.dart';
 import 'package:flutter/material.dart';
 import 'package:cash_manager/enums/paiement_method.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PaymentView extends StatefulWidget {
   final List<Product> products;
@@ -200,6 +204,64 @@ class _PaymentViewState extends State<PaymentView> {
     );
   }
 
+  showErrorMessage(String message) {
+    SnackBar snackBar = SnackBar(
+      content: Text(
+        message,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      backgroundColor: Colors.red[300],
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  FutureOr<bool> PayProducts(String accountId, String vcc) async {
+    var prefs = await SharedPreferences.getInstance();
+    String? ip = prefs.getString('ip');
+    String? jwt = prefs.getString('jwt');
+
+    if (ip != null && jwt != null) {
+      try {
+        var response = await http.post(
+          Uri.parse('http://$ip/api/product/pay'),
+          headers: {
+            'Authorization': jwt,
+          },
+          body: jsonEncode({
+            'accountId': accountId,
+            'vcc': vcc,
+            'products': widget.products
+                .map(
+                  (e) => {
+                    'code': e.code,
+                    'quantity': e.quantity,
+                  },
+                )
+                .toList(),
+          }),
+        );
+        if (response.statusCode == 200) {
+          var json = jsonDecode(response.body);
+          if (json['error'] != null) {
+            showErrorMessage(json['error']['message']);
+            return false;
+          }
+          return true;
+        }
+      } catch (err) {
+        var error = err as Error;
+        showErrorMessage(error.toString());
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   Widget buildBarcodeScanner() {
     return AnimatedExpander(
       onCollapsed: () {
@@ -217,8 +279,24 @@ class _PaymentViewState extends State<PaymentView> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: BarCodeScanner(
-            onScan: (barcode) {
-              return true;
+            onScan: (barcode) async {
+              if (barcode.format != BarcodeFormat.qrcode) {
+                return false;
+              }
+
+              String? code = barcode.code;
+
+              if (code == null) {
+                return false;
+              }
+
+              List<String> data = code.split(',');
+
+              if (data.length < 2) {
+                return false;
+              }
+
+              return await PayProducts(data[0], data[1]);
             },
             scanDelay: const Duration(milliseconds: 1000),
           ),
@@ -256,8 +334,13 @@ class _PaymentViewState extends State<PaymentView> {
           borderRadius: BorderRadius.circular(16),
           child: NFCScanner(
             onScan: (String str) async {
-              await Future.delayed(const Duration(seconds: 2));
-              return Random().nextBool();
+              List<String> data = str.split(',');
+
+              if (data.length < 2) {
+                return false;
+              }
+
+              return await PayProducts(data[0], data[1]);
             },
           ),
         ),
