@@ -8,4 +8,5 @@ module.exports = {
   SecurityController: require('./SecurityController'),
   BankAccountController: require('./BankAccountController'),
   ProductController: require('./ProductController'),
+  DownloadController: require('./DownloadController'),
 };
