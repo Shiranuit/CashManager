@@ -121,5 +121,22 @@ module.exports = {
   },
   'api:product:add_failed': {
     message: 'Failed to find product',
+    type: ApiError,
+  },
+  'api:product:missing_code': {
+    message: 'Missing product code in %s',
+    type: BadRequestError,
+  },
+  'api:product:missing_quantity': {
+    message: 'Missing product quantity in %s',
+    type: BadRequestError,
+  },
+  'security:transaction:rejected': {
+    message: 'Transaction Rejected: %s',
+    type: SecurityError,
+  },
+  'security:transaction:insufficient_balance': {
+    message: 'Fund insufficient to complete transaction',
+    type: SecurityError,
   }
 };
