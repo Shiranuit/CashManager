@@ -60,9 +60,6 @@ module.exports = {
         logout: true,
         checkToken: true,
       },
-      product: {
-        getProductByCode: true,
-      },
       download: {
         downloadAPK: true,
       }
@@ -78,6 +75,10 @@ module.exports = {
       },
       product: {
         getProductByCode: true,
+        payShoppingCart: true,
+      },
+      download: {
+        downloadAPK: true,
       }
     },
     'admin': {
