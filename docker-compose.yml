@@ -16,8 +16,11 @@ services:
       ADMIN_USERNAME: ${ADMIN_ROLE:-admin}
       ADMIN_PASSWORD: ${ADMIN_ROLE:-admin}
       ADMIN_ROLE: ${ADMIN_ROLE:-admin}
+    volumes:
+      - build:/build
     depends_on:
       - postgres
+      - mobile
 
   postgres:
     image: postgres:9.6
@@ -42,5 +45,11 @@ services:
     ports:
       - 8081:8080
 
+  mobile:
+    build: ./mobile
+    volumes:
+      - build:/build
+
 volumes:
   pg_data:
+  build:
