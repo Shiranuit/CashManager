@@ -10,7 +10,7 @@ class FileDownload {
     this.path = path;
   }
 
-  async toJSON() {
+  toJSON() {
     return {
       filename: this.filename,
       contentType: this.contentType,
