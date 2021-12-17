@@ -106,9 +106,6 @@ class ProductController extends BaseController {
 
     //  If found in DB, return it
     if (product) {
-      if (!raw) {
-        delete product.raw;
-      }
       return product;
     }
 
