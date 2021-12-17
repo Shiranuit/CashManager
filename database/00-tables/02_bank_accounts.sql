@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS public.bank_accounts (
   id TEXT PRIMARY KEY,
   vcc TEXT NOT NULL,
-  balance INTEGER NOT NULL DEFAULT 0
+  balance DECIMAL NOT NULL DEFAULT 0
 );
