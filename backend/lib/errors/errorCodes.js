@@ -120,6 +120,6 @@ module.exports = {
     type: ApiError,
   },
   'api:product:add_failed': {
-    message: 'Failed to fin',
+    message: 'Failed to find product',
   }
 };
