@@ -53,14 +53,15 @@ class ProductController extends BaseController {
       if (product.code === undefined
         || product.code === null
       ) {
-        error.throwError('api:product:missing_code', `body.products[${i}].code`);
+        error.throwError('request:invalid:missing_argument', `body.products[${i}].code`);
       }
 
-      if (product.quantity === undefined
-        || product.quantity === null
-        || product.quantity <= 0
-      ) {
-        error.throwError('api:product:missing_quantity', `body.products[${i}].quantity`);
+      if  (typeof product.quantity !== 'number') {
+        error.throwError('request:invalid:invalid_type', `body.products[${i}].quantity`, 'number');
+      }
+
+      if (product.quantity <= 0) {
+        error.throwError('request:invalid:missing_argument', `body.products[${i}].quantity`);
       }
     }
 
@@ -75,7 +76,7 @@ class ProductController extends BaseController {
     }
 
     // Verify credit card informations
-    const validCreditCard = this.backend.ask('core:bankAccount:verify', creditCardNumber, vcc);
+    const validCreditCard = await this.backend.ask('core:bankAccount:verify', creditCardNumber, vcc);
     if (!validCreditCard) {
       error.throwError('api:bankAccount:verification_failed');
     }
@@ -88,7 +89,7 @@ class ProductController extends BaseController {
 
     // Verify if account has enough money
     if (account.balance < totalPrice) {
-      error.throwError('security:transaction:insufficient_balance');
+      error.throwError('security:transaction:insufficient_fund');
     }
 
     await this.backend.ask('core:bankAccount:setBalance', creditCardNumber, account.balance - totalPrice);

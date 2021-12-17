@@ -90,7 +90,7 @@ class BankAccountRepository {
   async setAccountBalance (accountId, balance = 0) {
     const result = await this.backend.ask(
       'postgres:query',
-      'UPDATE clocks SET balance = $2 WHERE id = $1 RETURNING id, vcc, balance;',
+      'UPDATE bank_accounts SET balance = $2 WHERE id = $1 RETURNING id, vcc, balance;',
       [accountId, balance]
     );
 
