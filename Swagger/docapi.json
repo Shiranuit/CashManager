@@ -19,7 +19,10 @@
   ],
   "tags": [
     "Auth",
-    "Security"
+    "Security",
+    "Bankaccount",
+    "Download",
+    "Product"
   ],
   "paths": {
     "/api/auth/_login": {
@@ -2591,6 +2594,889 @@
                       "type": "integer",
                       "description": "Status Code",
                       "example": 502
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bankaccount/_admin/{accountId}": {
+      "get": {
+        "tags": [
+          "Bankaccount"
+        ],
+        "description": "Get the BankAccount informations",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "success": {
+            "description": "Response when the request succeeded",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "balance": {
+                      "type": "number",
+                      "description": "The balance of the BankAccount.",
+                      "example": 1
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The id of the BankAccount.",
+                      "example": "cc371db2-8f9a-4f28-bb4d-2220906b371e"
+                    },
+                    "vcc": {
+                      "type": "string",
+                      "description": "The BankAccount visual cryptographic code",
+                      "example": "6666"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "api:bankAccount:not_found": {
+            "description": "Response when the error api:bankAccount:not_found occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "api:bankAccount:not_found",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "ApiError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Bank account not found"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 504
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Bankaccount"
+        ],
+        "description": "Get the BankAccount informations",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "balance": {
+                  "type": "number",
+                  "description": "The new BankAccount balance."
+                }
+              }
+            }
+          },
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "success": {
+            "description": "Response when the request succeeded",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "balance": {
+                      "type": "number",
+                      "description": "The balance of the BankAccount.",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "api:bankAccount:not_found": {
+            "description": "Response when the error api:bankAccount:not_found occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "api:bankAccount:not_found",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "ApiError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Bank account not found"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 504
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Bankaccount"
+        ],
+        "description": "Delete a BankAccount",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "type": "string:\"cc371db2-8f9a-4f28-bb4d-2220906b371e\""
+          }
+        ],
+        "responses": {
+          "success": {
+            "description": "Response when the request succeeded",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bankaccount/{accountId}/{vcc}": {
+      "get": {
+        "tags": [
+          "Bankaccount"
+        ],
+        "description": "Get the BankAccount informations",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "vcc",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "success": {
+            "description": "Response when the request succeeded",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "balance": {
+                      "type": "number",
+                      "description": "The balance of the BankAccount.",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "api:bankAccount:verification_failed": {
+            "description": "Response when the error api:bankAccount:verification_failed occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "api:bankAccount:verification_failed",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "SecurityError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Could not verify bank account details"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 502
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "api:bankAccount:not_found": {
+            "description": "Response when the error api:bankAccount:not_found occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "api:bankAccount:not_found",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "ApiError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Bank account not found"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 504
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bankaccount/_admin/_create": {
+      "post": {
+        "tags": [
+          "Bankaccount"
+        ],
+        "description": "Create a new BankAccount",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "balance": {
+                  "type": "number",
+                  "description": "The balance of the BankAccount.",
+                  "example": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "success": {
+            "description": "Response when the request succeeded",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "balance": {
+                      "type": "number",
+                      "description": "The balance of the BankAccount.",
+                      "example": 0
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The BankAccount id.",
+                      "example": "cc371db2-8f9a-4f28-bb4d-2220906b371e"
+                    },
+                    "vcc": {
+                      "type": "string",
+                      "description": "The BankAccount visual cryptographic code.",
+                      "example": "6666"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "api:bankAccount:creation_failed": {
+            "description": "Response when the error api:bankAccount:creation_failed occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "api:bankAccount:creation_failed",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "SecurityError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Could not create a new bank account"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 502
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/download/client.apk": {
+      "get": {
+        "tags": [
+          "Download"
+        ],
+        "description": "Initiate APK Downloading",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "success": {
+            "description": "Response when the request succeeded",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "FileDownload",
+                  "example": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/product/{code}": {
+      "get": {
+        "tags": [
+          "Product"
+        ],
+        "description": "Get product informations by code",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "raw": {
+                  "type": "boolean",
+                  "description": "Add raw product informations.",
+                  "example": false
+                }
+              }
+            }
+          },
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "success": {
+            "description": "Response when the request succeeded",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "The product barcode",
+                      "example": "20020392"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The product name",
+                      "example": "Sirop de grenadine"
+                    },
+                    "image": {
+                      "type": "string",
+                      "description": "The url of the product image",
+                      "example": "https://www..."
+                    },
+                    "ingredients": {
+                      "type": "string",
+                      "description": "The url of the product ingredients image",
+                      "example": "https://www...."
+                    },
+                    "brand": {
+                      "type": "string",
+                      "description": "The product's brand",
+                      "example": "Plein Sud"
+                    },
+                    "price": {
+                      "type": "number",
+                      "description": "The product's price",
+                      "example": 4.2
+                    },
+                    "nutriScore": {
+                      "type": "string",
+                      "description": "The product nutriScore from [a, b, c, d, e]",
+                      "example": "a"
+                    },
+                    "raw": {
+                      "type": "object",
+                      "description": "The raw product details"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "api:product:not_found": {
+            "description": "Response when the error api:product:not_found occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "api:product:not_found",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "ApiError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Product \"%s\" not found"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 504
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/product/pay": {
+      "post": {
+        "tags": [
+          "Product"
+        ],
+        "description": "Buy every product listed",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": "Array<{}>",
+                  "description": "A list of products.",
+                  "example": {
+                    "code": "20020392",
+                    "quantity": 42
+                  }
+                },
+                "accountId": {
+                  "type": "string",
+                  "description": "BankAccount ID.",
+                  "example": "cc371db2-8f9a-4f28-bb4d-2220906b371e"
+                },
+                "vcc": {
+                  "type": "string",
+                  "description": "BankAccount visual cryptographic code.",
+                  "example": "6666"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "success": {
+            "description": "Response when the request succeeded",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          },
+          "request:invalid:missing_argument": {
+            "description": "Response when the error request:invalid:missing_argument occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "request:invalid:missing_argument",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BadRequest",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Missing argument \"%s\""
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security:transaction:rejected": {
+            "description": "Response when the error security:transaction:rejected occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "security:transaction:rejected",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "SecurityError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Transaction Rejected: %s"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 502
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "api:bankAccount:verification_failed": {
+            "description": "Response when the error api:bankAccount:verification_failed occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "api:bankAccount:verification_failed",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "SecurityError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Could not verify bank account details"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 502
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "api:bankAccount:not_found": {
+            "description": "Response when the error api:bankAccount:not_found occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "api:bankAccount:not_found",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "ApiError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Bank account not found"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 504
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security:transaction:insufficient_funds": {
+            "description": "Response when the error security:transaction:insufficient_funds occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "security:transaction:insufficient_funds",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "SecurityError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Funds insufficient to complete transaction"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 502
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "api:product:not_found": {
+            "description": "Response when the error api:product:not_found occurs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "api:product:not_found",
+                      "description": "Error ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "ApiError",
+                      "description": "Error Class Type"
+                    },
+                    "stack": {
+                      "type": "string",
+                      "description": "Error StackTrace",
+                      "example": "Error at ..."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error Message",
+                      "example": "Product \"%s\" not found"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status Code",
+                      "example": 504
                     }
                   }
                 }

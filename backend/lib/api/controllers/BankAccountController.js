@@ -39,8 +39,17 @@ class BankAccountController extends BaseController {
   }
 
   /**
-   * Get the balance of a user.
+   * Get the BankAccount informations.
    * @param {Request} request
+   * 
+   * @openapi
+   * @action adminGetAccountInfo
+   * @description Get the BankAccount informations
+   * @templateParam {string} accountId The id of the BankAccount.
+   * @successField {number:1} balance The balance of the BankAccount.
+   * @successField {string:"cc371db2-8f9a-4f28-bb4d-2220906b371e"} id The id of the BankAccount.
+   * @successField {string:"6666"} vcc The BankAccount visual cryptographic code
+   * @error api:bankAccount:not_found
    */
   async adminGetAccountInfo (req) {
     const accountId = req.getString('accountId');
@@ -49,8 +58,17 @@ class BankAccountController extends BaseController {
   }
 
   /**
-   * Get the bankAccount information.
+   * Get the BankAccount information.
    * @param {Request} req
+   * 
+   * @openapi
+   * @action getAccountInfo
+   * @description Get the BankAccount informations
+   * @templateParam {string} accountId The id of the BankAccount.
+   * @templateParam {string} vcc The vcc associated to the BankAccount.
+   * @successField {number:0} balance The balance of the BankAccount.
+   * @error api:bankAccount:verification_failed
+   * @error api:bankAccount:not_found
    */
   async getAccountInfo (req) {
     const accountId = req.getString('accountId');
@@ -70,12 +88,20 @@ class BankAccountController extends BaseController {
   }
 
   /**
-   * Update the balance of a bank Account.
+   * Update the balance of a BankAccount.
    * @param {Request} req
+   * 
+   * @openapi
+   * @action adminUpdateBalance
+   * @description Get the BankAccount informations
+   * @templateParam {string} accountId The id of the BankAccount.
+   * @bodyParam {number} balance The new BankAccount balance.
+   * @successField {number:0} balance The balance of the BankAccount.
+   * @error api:bankAccount:not_found
    */
   async adminUpdateBalance (req) {
     const accountId = req.getString('accountId');
-    const balance = req.getBodyInteger('balance');
+    const balance = req.getBodyNumber('balance');
 
     const bankAccount = await this.backend.ask('core:bankAccount:setBalance', accountId, balance);
 
@@ -87,19 +113,39 @@ class BankAccountController extends BaseController {
   }
 
   /**
-   * Create a new bankAccount
+   * Create a new BankAccount
    * 
-   * @param {Request} req 
+   * @param {Request} req
+   * 
+   * @openapi
+   * @action adminCreateAccount
+   * @description Create a new BankAccount
+   * @bodyParam {number:0} balance The balance of the BankAccount.
+   * @successField {number:0} balance The balance of the BankAccount.
+   * @successField {string:"cc371db2-8f9a-4f28-bb4d-2220906b371e"} id The BankAccount id.
+   * @successField {string:"6666"} vcc The BankAccount visual cryptographic code.
+   * @error api:bankAccount:creation_failed
    */
   async adminCreateAccount (req) {
-    const balance = req.getBodyInteger('balance', 0);
+    const balance = req.getBodyNumber('balance', 0);
     const account = await this.backend.ask('core:bankAccount:create', balance);
+
+    if (!account) {
+      error.throwError('api:bankAccount:creation_failed');
+    }
+
     return account;
   }
 
   /**
-   * Delete a bankAccount
+   * Delete a BankAccount
    * @param {Request} req 
+   * 
+   * @openapi
+   * @action adminDeleteAccount
+   * @description Delete a BankAccount
+   * @templateParam {string:"cc371db2-8f9a-4f28-bb4d-2220906b371e"} accountId The BankAccount ID.
+   * @return {boolean} true
    */
   async adminDeleteAccount (req) {
     const accountId = req.getString('accountId');

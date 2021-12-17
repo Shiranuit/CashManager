@@ -115,6 +115,10 @@ module.exports = {
     message: 'Could not verify bank account details',
     type: SecurityError,
   },
+  'api:bankAccount:creation_failed': {
+    message: 'Could not create a new bank account',
+    type: SecurityError,
+  },
   'api:product:not_found': {
     message: 'Product "%s" not found',
     type: ApiError,

@@ -21,6 +21,11 @@ class DownloadController extends BaseController {
   /**
    * Initiate APK Downloading
    * @param {Request} request
+   * 
+   * @openapi
+   * @action downloadAPK
+   * @description Initiate APK Downloading
+   * @return {FileDownload} {}
    */
   async downloadAPK(req) {
     return await FileDownload.Instantiate(

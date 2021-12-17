@@ -23,6 +23,21 @@ class ProductController extends BaseController {
   /**
    * Get product informations by code
    * @param {Request} req
+   * 
+   * @openapi
+   * @action getProductByCode
+   * @description Get product informations by code
+   * @templateParam {string} code The barcode of the product.
+   * @bodyParam {boolean:false} raw Add raw product informations.
+   * @successField {string:"20020392"} code The product barcode
+   * @successField {string:"Sirop de grenadine"} name The product name
+   * @successField {string:"https://www..."} image The url of the product image
+   * @successField {string:"https://www...."} ingredients The url of the product ingredients image
+   * @successField {string:"Plein Sud"} brand The product's brand
+   * @successField {number:4.2} price The product's price
+   * @successField {string:"a"} nutriScore The product nutriScore from [a, b, c, d, e]
+   * @successField {object} raw The raw product details
+   * @error api:product:not_found
    */
   async getProductByCode (req) {
     const code = req.getString('code');
@@ -38,12 +53,26 @@ class ProductController extends BaseController {
   }
 
   /**
-   * Buy every product in the shopping cart
+   * Buy every product listed
    * @param {Request} req
+   * 
+   * @openapi
+   * @action payShoppingCart
+   * @description Buy every product listed
+   * @bodyParam {Array<{}>:{"code": "20020392", "quantity": 42}} products A list of products.
+   * @bodyParam {string:"cc371db2-8f9a-4f28-bb4d-2220906b371e"} accountId BankAccount ID.
+   * @bodyParam {string:"6666"} vcc BankAccount visual cryptographic code.
+   * @return {boolean} true
+   * @error request:invalid:missing_argument
+   * @error security:transaction:rejected
+   * @error api:bankAccount:verification_failed
+   * @error api:bankAccount:not_found
+   * @error security:transaction:insufficient_funds
+   * @error api:product:not_found
    */
   async payShoppingCart(req) {
     const products = req.getBodyArray('products');
-    const creditCardNumber = req.getBodyString('creditCardNumber');
+    const accountId = req.getBodyString('accountId');
     const vcc = req.getBodyString('vcc');
 
     // Verify product informations
@@ -76,12 +105,12 @@ class ProductController extends BaseController {
     }
 
     // Verify credit card informations
-    const validCreditCard = await this.backend.ask('core:bankAccount:verify', creditCardNumber, vcc);
+    const validCreditCard = await this.backend.ask('core:bankAccount:verify', accountId, vcc);
     if (!validCreditCard) {
       error.throwError('api:bankAccount:verification_failed');
     }
 
-    const account = await this.backend.ask('core:bankAccount:get', creditCardNumber);
+    const account = await this.backend.ask('core:bankAccount:get', accountId);
     // Should never happend
     if (!account) {
       error.throwError('api:bankAccount:not_found');
@@ -89,10 +118,10 @@ class ProductController extends BaseController {
 
     // Verify if account has enough money
     if (account.balance < totalPrice) {
-      error.throwError('security:transaction:insufficient_fund');
+      error.throwError('security:transaction:insufficient_funds');
     }
 
-    await this.backend.ask('core:bankAccount:setBalance', creditCardNumber, account.balance - totalPrice);
+    await this.backend.ask('core:bankAccount:setBalance', accountId, account.balance - totalPrice);
     return true;
   }
 
