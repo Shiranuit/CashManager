@@ -1,7 +1,7 @@
 'use strict';
 
-const BankAccountRepository = require("./bankAccountRepository");
-const ProductRepository = require("./productRepository");
+const BankAccountRepository = require('./bankAccountRepository');
+const ProductRepository = require('./productRepository');
 
 class RepositoryModule {
   constructor () {

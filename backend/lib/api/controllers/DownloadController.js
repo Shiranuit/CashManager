@@ -27,8 +27,8 @@ class DownloadController extends BaseController {
    * @description Initiate APK Downloading
    * @return {FileDownload} {}
    */
-  async downloadAPK(req) {
-    return await FileDownload.Instantiate(
+  async downloadAPK() {
+    return await FileDownload.instantiate(
       '/build/app.apk',
       {
         contentType: 'application/vnd.android.package-archive',

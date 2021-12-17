@@ -97,11 +97,11 @@ class EntryPoint {
     });
 
     file.stream.on('error', (err) => {
-      const error = new InternalError(err.message);
-      this.backend.logger.error(`Response: ${JSON.stringify(error.toJSON(), null, 4)}`);
+      const _err = new InternalError(err.message);
+      this.backend.logger.error(`Response: ${JSON.stringify(_err.toJSON(), null, 4)}`);
       res.end(
         JSON.stringify({
-          error: error.toJSON()
+          error: _err.toJSON()
         })
       );
     });

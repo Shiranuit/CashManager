@@ -1,7 +1,9 @@
+'use strict';
+
 const fs = require('fs');
 
 class FileDownload {
-  constructor(path, stream, size, chunkSize, {filename = 'filename', contentType} = {}){
+  constructor(path, stream, size, chunkSize, {filename = 'filename', contentType} = {}) {
     this.filename = filename;
     this.contentType = contentType;
     this.length = size;
@@ -17,10 +19,10 @@ class FileDownload {
       length: this.length,
       chunkSize: this.chunkSize,
       path: this.path
-    }
+    };
   }
 
-  static async Instantiate(path, {contentType, filename, chunkSize = 4 * 1024} = {}) {
+  static async instantiate(path, {contentType, filename, chunkSize = 4 * 1024} = {}) {
     const stats = await fs.promises.stat(path);
     return new FileDownload(
       path,
@@ -33,6 +35,6 @@ class FileDownload {
       {contentType, filename, chunkSize}
     );
   }
-};
+}
 
 module.exports = FileDownload;

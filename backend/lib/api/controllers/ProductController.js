@@ -85,7 +85,7 @@ class ProductController extends BaseController {
         error.throwError('request:invalid:missing_argument', `body.products[${i}].code`);
       }
 
-      if  (typeof product.quantity !== 'number') {
+      if (typeof product.quantity !== 'number') {
         error.throwError('request:invalid:invalid_type', `body.products[${i}].quantity`, 'number');
       }
 
