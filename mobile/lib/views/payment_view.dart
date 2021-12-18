@@ -240,7 +240,7 @@ class _PaymentViewState extends State<PaymentView> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  FutureOr<bool> PayProducts(String accountId, String vcc) async {
+  FutureOr<bool> payProducts(String accountId, String vcc) async {
     var prefs = await SharedPreferences.getInstance();
     String? ip = prefs.getString('ip');
     String? jwt = prefs.getString('jwt');
@@ -324,9 +324,24 @@ class _PaymentViewState extends State<PaymentView> {
                 return false;
               }
 
-              return await PayProducts(data[0], data[1]);
+              return await payProducts(data[0], data[1]);
             },
             scanDelay: const Duration(milliseconds: 1000),
+            child: const Text(
+              'Scan QRCode',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+              softWrap: true,
+            ),
+            builder: (context, state, child) {
+              if (state == ScanState.beforeFirstScan) {
+                return child;
+              }
+            },
+            afterSuccessAnimation: afterPaymentSucceeded,
           ),
         ),
       ),
@@ -368,7 +383,7 @@ class _PaymentViewState extends State<PaymentView> {
                 return false;
               }
 
-              return await PayProducts(data[0], data[1]);
+              return await payProducts(data[0], data[1]);
             },
             afterSuccessAnimation: afterPaymentSucceeded,
           ),
