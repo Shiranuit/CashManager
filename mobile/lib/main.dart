@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cash_manager/views/shopping_cart.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -140,6 +142,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           );
         }
+      } on SocketException catch (err) {
+        _waitingForLogin.value = false;
+        showErrorMessage(err.message);
+        return;
       } catch (err) {
         var error = err as Error;
         _waitingForLogin.value = false;
