@@ -14,6 +14,10 @@ class _OrderReceiptState extends State<OrderReceipt> {
     List<DataRow> rows = [];
 
     for (Product product in widget.products) {
+      if (product.invalid) {
+        continue;
+      }
+
       rows.add(
         DataRow(cells: [
           DataCell(
@@ -102,6 +106,10 @@ class _OrderReceiptState extends State<OrderReceipt> {
     double totalPrice = 0;
 
     for (var product in widget.products) {
+      if (product.invalid) {
+        continue;
+      }
+
       totalPrice += product.price * product.quantity;
       totalQuantity = product.quantity;
     }
