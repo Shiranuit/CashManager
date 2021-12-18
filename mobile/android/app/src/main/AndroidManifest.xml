@@ -2,6 +2,8 @@
     package="com.example.cash_manager">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
    <application
         android:usesCleartextTraffic="true"
         android:label="cash_manager"
