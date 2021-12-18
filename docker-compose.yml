@@ -4,7 +4,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "4000:4000"
+      - "8080:8080"
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-database}
       DB_NAME: ${DB_NAME:-database}
@@ -13,12 +13,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-verysecurepassword}
       DERIVATION_ROUND: ${DERIVATION_ROUND:-100000}
       VAULT_SECRET: ${VAULT_SECRET:-verysecurepassword}
-      ADMIN_ROLE: ${ADMIN_EMAIL:-admin}
       ADMIN_USERNAME: ${ADMIN_ROLE:-admin}
       ADMIN_PASSWORD: ${ADMIN_ROLE:-admin}
-      ADMIN_ROLE: ${ADMIN_ROLE:-super-manager}
+      ADMIN_ROLE: ${ADMIN_ROLE:-admin}
+    volumes:
+      - build:/build
     depends_on:
       - postgres
+      - mobile
 
   postgres:
     image: postgres:9.6
@@ -43,5 +45,11 @@ services:
     ports:
       - 8081:8080
 
+  mobile:
+    build: ./mobile
+    volumes:
+      - build:/build
+
 volumes:
   pg_data:
+  build:

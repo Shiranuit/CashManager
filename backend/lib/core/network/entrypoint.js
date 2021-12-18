@@ -4,6 +4,7 @@ const http = require('http');
 const Request = require('../../api/requests/request');
 const error = require('../../errors');
 const InternalError = require('../../errors/internalError');
+const FileDownload = require('./FileDownload');
 
 class EntryPoint {
   constructor () {
@@ -80,6 +81,37 @@ class EntryPoint {
     }
   }
 
+  /**
+   * Send a file
+   * @param {http.ServerResponse} res
+   * @param {FileDownload} file 
+   */
+  sendFile(res, file) {
+    res.setHeader('Content-Type', file.contentType);
+    res.setHeader('Content-Disposition', `attachment; filename=${file.filename}`);
+    res.setHeader('Content-Transfer-Encoding', 'binary');
+    res.setHeader('Content-Length', file.length);
+
+    file.stream.on('open', () => {
+      file.stream.pipe(res);
+    });
+
+    file.stream.on('error', (err) => {
+      const _err = new InternalError(err.message);
+      this.backend.logger.error(`Response: ${JSON.stringify(_err.toJSON(), null, 4)}`);
+      res.end(
+        JSON.stringify({
+          error: _err.toJSON()
+        })
+      );
+    });
+  }
+
+  /**
+   * Process request and send result
+   * @param {http.IncomingMessage} req
+   * @param {http.ServerResponse} res
+   */
   processRequest (req, res) {
     this.backend.logger.debug(`New request ${req.url}`);
     let request;
@@ -190,6 +222,12 @@ class EntryPoint {
 
         // Apply default headers
         this._applyACAOHeaders(req, res);
+        if (_res.response.result instanceof FileDownload) {
+          const file = _res.response.result;
+          this.backend.logger.debug(`Sending File: ${JSON.stringify(file.toJSON(), null, 4)}`);
+          this.sendFile(res, _res.response.result);
+          return;
+        }
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(_res.response.toJSON()));
         this.backend.logger.debug(`Response: ${JSON.stringify(_res.response.toJSON(), null, 4)}`);

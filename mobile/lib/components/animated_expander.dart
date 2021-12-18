@@ -34,11 +34,19 @@ class AnimatedExpander extends StatefulWidget {
 
   /// Called when the widget is fully collapsed.
   final VoidCallback? onCollapsed;
+
+  /// Display the child while the widget is expanding.
+  final bool useChildAsExpansion;
+
+  /// Called rebuilding during expansion or collapsing
+  final Widget? Function(BuildContext, Widget?)? onRebuild;
   AnimatedExpander(
       {Key? key,
       this.child,
       this.expansionChild,
       this.defaultExpanded = false,
+      this.useChildAsExpansion = false,
+      this.onRebuild,
       this.onExpanded,
       this.onCollapsed,
       required this.duration,
@@ -101,10 +109,6 @@ class _AnimatedExpanderState extends State<AnimatedExpander>
     super.initState();
   }
 
-  Widget? buildChild() {
-    return widget.child;
-  }
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
@@ -117,16 +121,21 @@ class _AnimatedExpanderState extends State<AnimatedExpander>
                 child: widget.child,
                 builder: (context, child) {
                   if (_controller.value != 1) {
+                    Widget? expansionWidget = widget.useChildAsExpansion
+                        ? widget.child
+                        : widget.expansionChild;
                     return SizedBox(
                       width: widget.width * _controller.value,
                       height: widget.height * _controller.value,
-                      child: widget.expansionChild,
+                      child: widget.onRebuild != null
+                          ? widget.onRebuild!(context, expansionWidget)
+                          : expansionWidget,
                     );
                   }
                   return SizedBox(
                     width: widget.width * _controller.value,
                     height: widget.height * _controller.value,
-                    child: buildChild(),
+                    child: widget.child,
                   );
                 },
               );

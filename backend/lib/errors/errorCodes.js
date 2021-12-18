@@ -4,6 +4,7 @@ const InternalError = require('./internalError');
 const BadRequestError = require('./badRequestError');
 const ServiceUnavailableError = require('./serviceUnavailableError');
 const SecurityError = require('./securityError');
+const ApiError = require('./apiError');
 
 module.exports = {
   'request:origin:unauthorized': {
@@ -106,4 +107,32 @@ module.exports = {
     message: 'User does not have the required permissions to execute "%s:%s"',
     type: SecurityError,
   },
+  'api:bankAccount:not_found': {
+    message: 'Bank account not found',
+    type: ApiError,
+  },
+  'api:bankAccount:verification_failed': {
+    message: 'Could not verify bank account details',
+    type: SecurityError,
+  },
+  'api:bankAccount:creation_failed': {
+    message: 'Could not create a new bank account',
+    type: SecurityError,
+  },
+  'api:product:not_found': {
+    message: 'Product "%s" not found',
+    type: ApiError,
+  },
+  'api:product:add_failed': {
+    message: 'Failed to find product',
+    type: ApiError,
+  },
+  'security:transaction:rejected': {
+    message: 'Transaction Rejected: %s',
+    type: SecurityError,
+  },
+  'security:transaction:insufficient_funds': {
+    message: 'Funds insufficient to complete transaction',
+    type: SecurityError,
+  }
 };
