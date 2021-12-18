@@ -28,16 +28,33 @@ class _ShoppingCartState extends State<ShoppingCart>
   late StreamController<bool> _expandController;
   double totalPrice = 0;
   int totalQuantity = 0;
+  late Animation<Color?> _animatedColor;
+  late AnimationController _animatedColorController;
 
   @override
   void initState() {
     super.initState();
     _expandController = StreamController.broadcast();
+    _animatedColorController = AnimationController(
+      animationBehavior: AnimationBehavior.preserve,
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void didChangeDependencies() {
+    _animatedColor = ColorTween(
+            begin: Theme.of(context).buttonTheme.colorScheme?.primary,
+            end: const Color.fromARGB(255, 143, 252, 246))
+        .animate(_animatedColorController);
+    super.didChangeDependencies();
   }
 
   @override
   dispose() {
     _expandController.close();
+    _animatedColorController.dispose();
     super.dispose();
   }
 
@@ -143,7 +160,6 @@ class _ShoppingCartState extends State<ShoppingCart>
         code.format == BarcodeFormat.ean8 ||
         code.format == BarcodeFormat.codabar) {
       if (code.code != null) {
-        HapticFeedback.vibrate();
         return await addProduct(code.code!);
       }
     }
@@ -236,6 +252,20 @@ class _ShoppingCartState extends State<ShoppingCart>
                 child: BarCodeScanner(
                   onScan: onScan,
                   scanDelay: const Duration(milliseconds: 1000),
+                  child: const Text(
+                    'Scan product',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    softWrap: true,
+                  ),
+                  builder: (context, state, child) {
+                    if (state == ScanState.beforeFirstScan) {
+                      return child;
+                    }
+                  },
                 ),
               ),
             ),
@@ -355,15 +385,27 @@ class _ShoppingCartState extends State<ShoppingCart>
                 )),
           )),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            _expandController.add(!showQRScanner);
-          },
-          backgroundColor: Theme.of(context).buttonTheme.colorScheme?.primary,
-          tooltip: 'QR Code',
-          child: showQRScanner
-              ? const Icon(Icons.close)
-              : const Icon(Icons.qr_code_scanner)),
+      floatingActionButton: AnimatedBuilder(
+        animation: _animatedColor,
+        builder: (BuildContext context, Widget? child) {
+          return FloatingActionButton(
+            onPressed: () {
+              if (!showQRScanner) {
+                _animatedColorController.stop();
+                _animatedColorController.reset();
+              } else {
+                _animatedColorController.repeat(reverse: true);
+              }
+              _expandController.add(!showQRScanner);
+            },
+            backgroundColor: _animatedColor.value,
+            tooltip: 'Scan Barcode',
+            child: showQRScanner
+                ? const Icon(Icons.close)
+                : const Icon(Icons.qr_code_scanner),
+          );
+        },
+      ),
     );
   }
 }
