@@ -111,7 +111,7 @@ class _OrderReceiptState extends State<OrderReceipt> {
       }
 
       totalPrice += product.price * product.quantity;
-      totalQuantity = product.quantity;
+      totalQuantity += product.quantity;
     }
 
     return Row(

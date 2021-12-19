@@ -63,7 +63,7 @@ class _ShoppingCartState extends State<ShoppingCart>
     int quantity = 0;
     for (var product in products) {
       price += product.price * product.quantity;
-      quantity = product.quantity;
+      quantity += product.quantity;
     }
     setState(() {
       totalPrice = price;
